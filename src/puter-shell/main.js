@@ -28,7 +28,6 @@ import { Context } from "contextlink";
 import { SHELL_VERSIONS } from "../meta/versions.js";
 import { PuterShellParser } from "../ansi-shell/parsing/PuterShellParser.js";
 import { BuiltinCommandProvider } from "./providers/BuiltinCommandProvider.js";
-import { CreateChatHistoryPlugin } from "./plugins/ChatHistoryPlugin.js";
 import { Pipe } from "../ansi-shell/pipeline/Pipe.js";
 import { Coupler } from "../ansi-shell/pipeline/Coupler.js";
 import { BetterReader } from "dev-pty";
@@ -110,13 +109,6 @@ export const launchPuterShell = async (ctx) => {
     locals: new Context(),
   });
 
-  {
-    const name = "chatHistory";
-    const p = CreateChatHistoryPlugin(ctx);
-    ctx.plugins[name] = new Context(p.expose);
-    p.init();
-  }
-
   const ansiShell = new ANSIShell(ctx);
 
   // TODO: move ioctl to PTY
@@ -151,50 +143,9 @@ export const launchPuterShell = async (ctx) => {
     return fireText;
   };
 
-  const blue = (text) => {
-    return `\x1b[38:5:27;1m${text}\x1b[0m`;
-  };
-
-  const mklink = (url, text) => {
-    return `\x1b]8;;${url}\x07${text || url}\x1b]8;;\x07`;
-  };
-
   ctx.externs.out.write(
-    `${fire("Phoenix Shell")} [v${SHELL_VERSIONS[0].v}]\n` +
-      `⛷  try typing \x1B[34;1mhelp\x1B[0m or ` +
-      `\x1B[34;1mchangelog\x1B[0m to get started.\n` +
-      "\n" +
-      `${mklink(GH_LINK["phoenix"], fire("This shell"))} and ${mklink(
-        GH_LINK["terminal"],
-        blue("Puter's Terminal Emulator"),
-      )} are free software:\n` +
-      // `- ${fire('phoenix')}: ` + mklink(GH_LINK['phoenix'], fire(GH_LINK['phoenix'])) + '\n' +
-      // `- ${blue('terminal')}: ` + mklink(GH_LINK['terminal'], blue(GH_LINK['terminal'])) + '\n' +
-      `- ${"phoenix"}: ` +
-      mklink(GH_LINK["phoenix"]) +
-      "\n" +
-      `- ${"terminal"}: ` +
-      mklink(GH_LINK["terminal"]) +
-      "\n" +
-      // `🔗  ${mklink('https://puter.com', 'puter.com')} ` +
-      "",
-    // `🔗  ${mklink('https://puter.com', 'puter.com')} ` +
+    `${fire("AnuraOS Phoenix Shell")} [v${SHELL_VERSIONS[0].v}]\n` + "\n",
   );
-
-  if (!config.hasOwnProperty("puter.auth.token")) {
-    ctx.externs.out.write("\n");
-    ctx.externs.out.write(
-      `\x1B[33;1m⚠\x1B[0m` +
-        `\x1B[31;1m` +
-        " You are not running this terminal or shell within puter.com\n" +
-        `\x1B[0m` +
-        "Use of the shell outside of puter.com is still experimental.\n" +
-        "You must enter the command \x1B[34;1m`login`\x1B[0m to access most functionality.\n" +
-        "",
-    );
-  }
-
-  ctx.externs.out.write("\n");
 
   for (;;) {
     await ansiShell.doPromptIteration();

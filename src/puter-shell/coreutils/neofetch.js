@@ -19,23 +19,35 @@
 import { SHELL_VERSIONS } from "../../meta/versions.js";
 
 const logo = `
-             ▄████▄  ▄▄█████▄_
-    _▄███▀▀██▀    ▐██▀¬     '▀█▄
-  ╓██└           ▐█▀           ▀█
- (█▀             █▌             ██
- █▌          ▄██▀▀▀██▄          ▀██▄
- ██         ▐█                     ██
-  █▌                               ▐█
-   ▀█▄_                           ▄█▀
-     '▀▀████   █████   ████▌   ██▀▀
-          ▐█      ██      █▌
-          ▐█      ██      █▌
-     _▄_▄██\`      ██      '▀█▄_▄_
-   ╒█▀▀▀█▌        ██        ▐█▀\`▀█▄
-   ▐█▄_▄█▌      ╓████▄      ▐█▄_▄█▌
-     ▀▀▀\`       █▌  ▐█        ▀▀▀\`
-                '▀███▀
+\x1B[37m    ▄█████████████████    \x1B[31m███████\x1B[0m
+\x1B[37m   ▄██████████████████    \x1B[31m███████\x1B[0m
+\x1B[37m ▄████████████████████    \x1B[31m███████\x1B[0m
+\x1B[37m ████████▀     ▀██████    \x1B[0m
+\x1B[37m▄██████▀        ██████    \x1B[33m███████\x1B[0m
+\x1B[37m██████▀         ██████    \x1B[33m███████\x1B[0m
+\x1B[37m██████          ██████    \x1B[33m███████\x1B[0m
+\x1B[37m██████          ██████    \x1B[0m
+\x1B[37m██████          ██████    \x1B[32m███████\x1B[0m
+\x1B[37m██████          ██████    \x1B[32m███████\x1B[0m
+\x1B[37m██████▄        ▄██████    \x1B[32m███████\x1B[0m
+\x1B[37m███████▄      ▄███████    \x1B[0m
+\x1B[37m █████████████████████    \x1B[34m███████\x1B[0m
+\x1B[37m  ████████████████████    \x1B[34m███████\x1B[0m
+\x1B[37m   ▀█████████▀ ▀██████    \x1B[34m███████\x1B[0m
 `.slice(1);
+
+function pad(str, l, r) {
+  "use strict";
+  var tmp = new Array(l).join(" ");
+  str = "" + str;
+  var strClean = str.replace(/\u001b\[[^m]+m/g, "");
+
+  return r
+    ? tmp.slice(0, l - strClean.length) +
+        str.slice(0, l + str.length - strClean.length)
+    : str.slice(0, l + str.length - strClean.length) +
+        tmp.slice(0, l - strClean.length);
+}
 
 export default {
   name: "neofetch",
@@ -47,47 +59,25 @@ export default {
     const B25 = (n) => `\x1B[48;5;${n}m`;
     const COL = C25(27);
     const END = "\x1B[0m";
-    const lines = logo.split("\n").map((line) => {
-      while (line.length < 40) line += " ";
-      return line;
-    });
+    const lines = logo.split("\n").map((line) => pad(line, 40, false));
 
-    for (let i = 0; i < lines.length; i++) {
-      let ind = Math.floor(i / 5);
-      const col = cols[ind];
-      lines[i] = `\x1B[38;5;${col}m` + lines[i] + END;
-    }
-
-    {
-      const org = lines[9];
-      lines[9] = org.slice(0, 34) + C25(cols[2]) + org.slice(34);
-    }
-    {
-      let org = lines[10];
-      org = org.slice(10);
-      lines[10] =
-        C25(cols[1]) + org.slice(0, 12) + C25(cols[2]) + org.slice(12);
-    }
-
-    lines[0] += COL + ctx.env.USER + END + "@" + COL + "puter.com" + END;
+    lines[0] += COL + ctx.env.USER + END + "@" + COL + ctx.env.HOSTNAME + END;
     lines[1] += "-----------------";
-    lines[2] += COL + "OS" + END + ": Puter";
-    lines[3] += COL + "Shell" + END + ": Puter Shell v" + SHELL_VERSIONS[0].v;
-    lines[4] += COL + "Window" + END + `: ${ctx.env.COLS}x${ctx.env.ROWS}`;
-    lines[5] +=
+    lines[2] += COL + "OS" + END + ": AnuraOS";
+    lines[3] += COL + "Shell" + END + ": Phoenix Shell v" + SHELL_VERSIONS[0].v;
+    lines[4] +=
       COL +
       "Commands" +
       END +
       `: ${Object.keys(ctx.registries.builtins).length}`;
 
-    const colors = [[], []];
     for (let i = 0; i < 16; i++) {
-      let ri = i < 8 ? 14 : 15;
+      let ri = i < 8 ? 13 : 14;
       let esc = i < 9 ? `\x1B[3${i}m\x1B[4${i}m` : C25(i) + B25(i);
       lines[ri] += esc + "   ";
     }
+    lines[13] += "\x1B[0m";
     lines[14] += "\x1B[0m";
-    lines[15] += "\x1B[0m";
 
     for (const line of lines) {
       await ctx.externs.out.write(line + "\n");

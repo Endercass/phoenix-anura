@@ -1,0 +1,12 @@
+{
+  "name": "Phoenix Terminal",
+  "type": "auto",
+  "package": "anura.phoenix",
+  "index": "index.html",
+  "icon": "term.png",
+  "wininfo": {
+    "title": "",
+    "width": "700px",
+    "height": "500px"
+  }
+}

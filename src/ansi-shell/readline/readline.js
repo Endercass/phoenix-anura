@@ -19,6 +19,7 @@
 import { Context } from "../../context/context.js";
 import { CommandCompleter } from "../../puter-shell/completers/command_completer.js";
 import { FileCompleter } from "../../puter-shell/completers/file_completer.js";
+import { AppCompleter } from "../../puter-shell/completers/app_completer.js";
 import { OptionCompleter } from "../../puter-shell/completers/option_completer.js";
 import { Uint8List } from "../../util/bytes.js";
 import { StatefulProcessorBuilder } from "../../util/statemachine.js";
@@ -26,6 +27,7 @@ import { ANSIContext } from "../ANSIContext.js";
 import { readline_comprehend } from "./rl_comprehend.js";
 import { CSI_HANDLERS } from "./rl_csi_handlers.js";
 import { HistoryManager } from "./history.js";
+import { MergeCompleter } from "../../puter-shell/completers/merge_completer.js";
 
 const decoder = new TextDecoder();
 
@@ -76,9 +78,8 @@ const ReadlineProcessorBuilder = (builder) =>
       if (locals.byte === consts.CHAR_ETX) {
         externs.out.write("^C\n");
         // Exit if input line is empty
-        // FIXME: Check for 'process' is so we only do this on Node. How should we handle exiting in Puter terminal?
-        if (process && ctx.vars.result.length === 0) {
-          process.exit(1);
+        if (ctx.vars.result.length === 0) {
+          instanceWindow.close();
           return;
         }
         // Otherwise clear it
@@ -131,8 +132,11 @@ const ReadlineProcessorBuilder = (builder) =>
             // Match `--*` against option names, if they exist
             completer = new OptionCompleter();
           } else {
-            // Match everything else against file names
-            completer = new FileCompleter();
+            // Match everything else against file names or app package names
+            completer = new MergeCompleter([
+              new FileCompleter(),
+              new AppCompleter(),
+            ]);
           }
         }
 
