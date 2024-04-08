@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { resolveRelativePath } from '../../util/path.js';
+import { resolveRelativePath } from "../../util/path.js";
 
 // TODO: add logic to check if directory is empty
 // TODO: add check for `--dir`
@@ -24,41 +24,39 @@ import { resolveRelativePath } from '../../util/path.js';
 
 // DRY: very similar to `cd`
 export default {
-    name: 'rm',
-    usage: 'rm [OPTIONS] PATH',
-    description: 'Remove the file or directory at PATH.',
-    args: {
-        $: 'simple-parser',
-        allowPositionals: true,
-        options: {
-            dir: {
-                description: 'Remove empty directories',
-                type: 'boolean',
-                short: 'd'
-            },
-            recursive: {
-                description: 'Recursively remove directories and their contents',
-                type: 'boolean',
-                short: 'r'
-            },
-            force: {
-                description: 'Ignore non-existent paths, and never prompt',
-                type: 'boolean',
-                short: 'f'
-            }
-        }
+  name: "rm",
+  usage: "rm [OPTIONS] PATH",
+  description: "Remove the file or directory at PATH.",
+  args: {
+    $: "simple-parser",
+    allowPositionals: true,
+    options: {
+      dir: {
+        description: "Remove empty directories",
+        type: "boolean",
+        short: "d",
+      },
+      recursive: {
+        description: "Recursively remove directories and their contents",
+        type: "boolean",
+        short: "r",
+      },
+      force: {
+        description: "Ignore non-existent paths, and never prompt",
+        type: "boolean",
+        short: "f",
+      },
     },
-    execute: async ctx => {
-        // ctx.params to access processed args
-        // ctx.args to access raw args
-        const { positionals, values } = ctx.locals;
-        const { filesystem } = ctx.platform;
+  },
+  execute: async (ctx) => {
+    // ctx.params to access processed args
+    // ctx.args to access raw args
+    const { positionals, values } = ctx.locals;
+    const { filesystem } = ctx.platform;
 
-        let [ target ] = positionals;
-        target = resolveRelativePath(ctx.vars, target);
+    let [target] = positionals;
+    target = resolveRelativePath(ctx.vars, target);
 
-        await filesystem.rm(target, { recursive: values.recursive })
-    }
+    await filesystem.rm(target, { recursive: values.recursive });
+  },
 };
-
-

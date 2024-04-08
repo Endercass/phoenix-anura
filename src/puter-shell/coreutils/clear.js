@@ -17,15 +17,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 export default {
-    name: 'clear',
-    usage: 'clear',
-    description: 'Clear the terminal output.',
-    args: {
-        // TODO: add 'none-parser'
-        $: 'simple-parser',
-        allowPositionals: false
-    },
-    execute: async ctx => {
-        await ctx.externs.out.write('\x1B[H\x1B[2J');
-    }
+  name: "clear",
+  usage: "clear",
+  description: "Clear the terminal output.",
+  args: {
+    // TODO: add 'none-parser'
+    $: "simple-parser",
+    allowPositionals: false,
+  },
+  execute: async (ctx) => {
+    await ctx.externs.out.write("\x1B[H\x1B[2J");
+  },
 };

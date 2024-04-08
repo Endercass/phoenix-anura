@@ -17,23 +17,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 export class CommandCompleter {
-    async getCompletions (ctx, inputState) {
-        const { builtins } = ctx.registries;
-        const query = inputState.input;
+  async getCompletions(ctx, inputState) {
+    const { builtins } = ctx.registries;
+    const query = inputState.input;
 
-        if ( query === '' ) {
-            return [];
-        }
-
-        const completions = [];
-
-        // TODO: Match executable names as well as builtins
-        for ( const commandName of Object.keys(builtins) ) {
-            if ( commandName.startsWith(query) ) {
-                completions.push(commandName.slice(query.length));
-            }
-        }
-
-        return completions;
+    if (query === "") {
+      return [];
     }
+
+    const completions = [];
+
+    // TODO: Match executable names as well as builtins
+    for (const commandName of Object.keys(builtins)) {
+      if (commandName.startsWith(query)) {
+        completions.push(commandName.slice(query.length));
+      }
+    }
+
+    return completions;
+  }
 }

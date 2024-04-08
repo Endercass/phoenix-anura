@@ -21,54 +21,54 @@ import { BetterReader } from "dev-pty";
 const encoder = new TextEncoder();
 
 export class XDocumentPTT {
-    constructor() {
-        this.ioctl_listeners = {};
+  constructor() {
+    this.ioctl_listeners = {};
 
-        this.readableStream = new ReadableStream({
-            start: controller => {
-                this.readController = controller;
-            }
-        });
-        this.writableStream = new WritableStream({
-            start: controller => {
-                this.writeController = controller;
-            },
-            write: chunk => {
-                if (typeof chunk === 'string') {
-                    chunk = encoder.encode(chunk);
-                }
-                window.parent.postMessage(chunk, '*');
-            }
-        });
-        this.out = this.writableStream.getWriter();
-        this.in = this.readableStream.getReader();
-        this.in = new BetterReader({ delegate: this.in });
-
-        window.addEventListener('message', evt => {
-            if ( ! evt.source === window.parent ) return;
-
-            if ( evt.data.hasOwnProperty('$') ) {
-                if ( evt.data.$ === 'ioctl.set' ) {
-                    this.emit('ioctl.set', evt);
-                }
-            }
-
-            if ( ! (evt?.data instanceof Uint8Array) ) return;
-            this.readController.enqueue(evt.data);
-        });
-    }
-
-    on (name, listener) {
-        if ( ! this.ioctl_listeners.hasOwnProperty(name) ) {
-            this.ioctl_listeners[name] = [];
+    this.readableStream = new ReadableStream({
+      start: (controller) => {
+        this.readController = controller;
+      },
+    });
+    this.writableStream = new WritableStream({
+      start: (controller) => {
+        this.writeController = controller;
+      },
+      write: (chunk) => {
+        if (typeof chunk === "string") {
+          chunk = encoder.encode(chunk);
         }
-        this.ioctl_listeners[name].push(listener);
-    }
+        window.parent.postMessage(chunk, "*");
+      },
+    });
+    this.out = this.writableStream.getWriter();
+    this.in = this.readableStream.getReader();
+    this.in = new BetterReader({ delegate: this.in });
 
-    emit (name, evt) {
-        if ( ! this.ioctl_listeners.hasOwnProperty(name) ) return;
-        for ( const listener of this.ioctl_listeners[name] ) {
-            listener(evt);
+    window.addEventListener("message", (evt) => {
+      if (!evt.source === window.parent) return;
+
+      if (evt.data.hasOwnProperty("$")) {
+        if (evt.data.$ === "ioctl.set") {
+          this.emit("ioctl.set", evt);
         }
+      }
+
+      if (!(evt?.data instanceof Uint8Array)) return;
+      this.readController.enqueue(evt.data);
+    });
+  }
+
+  on(name, listener) {
+    if (!this.ioctl_listeners.hasOwnProperty(name)) {
+      this.ioctl_listeners[name] = [];
     }
+    this.ioctl_listeners[name].push(listener);
+  }
+
+  emit(name, evt) {
+    if (!this.ioctl_listeners.hasOwnProperty(name)) return;
+    for (const listener of this.ioctl_listeners[name]) {
+      listener(evt);
+    }
+  }
 }

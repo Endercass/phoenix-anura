@@ -17,29 +17,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 export class CompositeCommandProvider {
-    constructor (providers) {
-        this.providers = providers;
+  constructor(providers) {
+    this.providers = providers;
+  }
+
+  async lookup(...a) {
+    for (const provider of this.providers) {
+      const command = await provider.lookup(...a);
+      if (command) {
+        return command;
+      }
+    }
+  }
+
+  async lookupAll(...a) {
+    const results = [];
+    for (const provider of this.providers) {
+      const commands = await provider.lookupAll(...a);
+      if (commands) {
+        results.push(...commands);
+      }
     }
 
-    async lookup (...a) {
-        for (const provider of this.providers) {
-            const command = await provider.lookup(...a);
-            if (command) {
-                return command;
-            }
-        }
-    }
-
-    async lookupAll (...a) {
-        const results = [];
-        for (const provider of this.providers) {
-            const commands = await provider.lookupAll(...a);
-            if ( commands ) {
-                results.push(...commands);
-            }
-        }
-
-        if ( results.length === 0 ) return undefined;
-        return results;
-    }
+    if (results.length === 0) return undefined;
+    return results;
+  }
 }

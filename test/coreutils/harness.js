@@ -17,55 +17,57 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { Context } from "contextlink";
-import { SyncLinesReader } from '../../src/ansi-shell/ioutil/SyncLinesReader.js';
-import { CommandStdinDecorator } from '../../src/ansi-shell/pipeline/iowrappers.js';
+import { SyncLinesReader } from "../../src/ansi-shell/ioutil/SyncLinesReader.js";
+import { CommandStdinDecorator } from "../../src/ansi-shell/pipeline/iowrappers.js";
 
 export class WritableStringStream extends WritableStream {
-    constructor() {
-        super({
-            write: (chunk) => {
-                if (this.output_ === undefined)
-                    this.output_ = "";
-                this.output_ += chunk;
-            }
-        });
-    }
+  constructor() {
+    super({
+      write: (chunk) => {
+        if (this.output_ === undefined) this.output_ = "";
+        this.output_ += chunk;
+      },
+    });
+  }
 
-    write(chunk) {
-        if (!this.writer_)
-            this.writer_ = this.getWriter();
-        return this.writer_.write(chunk);
-    }
+  write(chunk) {
+    if (!this.writer_) this.writer_ = this.getWriter();
+    return this.writer_.write(chunk);
+  }
 
-    get output() { return this.output_ || ""; }
+  get output() {
+    return this.output_ || "";
+  }
 }
 
 // TODO: Flesh this out as needed.
-export const MakeTestContext = (command, { positionals = [],  values = {}, stdinInputs = [], env = {} }) => {
+export const MakeTestContext = (
+  command,
+  { positionals = [], values = {}, stdinInputs = [], env = {} },
+) => {
+  let in_ = ReadableStream.from(stdinInputs).getReader();
+  if (command.input?.syncLines) {
+    in_ = new SyncLinesReader({ delegate: in_ });
+  }
+  in_ = new CommandStdinDecorator(in_);
 
-    let in_ = ReadableStream.from(stdinInputs).getReader();
-    if (command.input?.syncLines) {
-        in_ = new SyncLinesReader({ delegate: in_ });
-    }
-    in_ = new CommandStdinDecorator(in_);
-
-    return new Context({
-        cmdExecState: { valid: true },
-        externs: new Context({
-            in_,
-            out: new WritableStringStream(),
-            err: new WritableStringStream(),
-            sig: null,
-        }),
-        locals: new Context({
-            args: [],
-            command,
-            positionals,
-            values,
-        }),
-        platform: new Context({}),
-        plugins: new Context({}),
-        registries: new Context({}),
-        env: env,
-    });
-}
+  return new Context({
+    cmdExecState: { valid: true },
+    externs: new Context({
+      in_,
+      out: new WritableStringStream(),
+      err: new WritableStringStream(),
+      sig: null,
+    }),
+    locals: new Context({
+      args: [],
+      command,
+      positionals,
+      values,
+    }),
+    platform: new Context({}),
+    plugins: new Context({}),
+    registries: new Context({}),
+    env: env,
+  });
+};

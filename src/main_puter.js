@@ -16,62 +16,65 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { Context } from 'contextlink';
-import { launchPuterShell } from './puter-shell/main.js';
-import { CreateFilesystemProvider } from './platform/puter/filesystem.js';
-import { CreateDriversProvider } from './platform/puter/drivers.js';
-import { XDocumentPTT } from './pty/XDocumentPTT.js';
-import { CreateEnvProvider } from './platform/puter/env.js';
+import { Context } from "contextlink";
+import { launchPuterShell } from "./puter-shell/main.js";
+import { CreateFilesystemProvider } from "./platform/puter/filesystem.js";
+import { CreateDriversProvider } from "./platform/puter/drivers.js";
+import { XDocumentPTT } from "./pty/XDocumentPTT.js";
+import { CreateEnvProvider } from "./platform/puter/env.js";
 
 window.main_shell = async () => {
-    const config = {};
+  const config = {};
 
-    let resolveConfigured = null;
-    const configured_ = new Promise(rslv => {
-        resolveConfigured = rslv;
-    });
-    window.addEventListener('message', evt => {
-        if ( evt.source !== window.parent ) return;
-        if ( evt.data instanceof Uint8Array ) {
-            return;
-        }
-        if ( ! evt.data.hasOwnProperty('$') ) {
-            console.error(`unrecognized window message`, evt);
-            return;
-        }
-        if ( evt.data.$ !== 'config' ) return;
-
-        console.log('received configuration at ANSI shell');
-        const configValues = { ...evt.data };
-        delete configValues.$;
-        for ( const k in configValues ) {
-            config[k] = configValues[k];
-        }
-        resolveConfigured();
-    });
-
-    window.parent.postMessage({ $: 'ready' }, '*');
-
-    await configured_;
-
-    const puterSDK = globalThis.puter;
-    if ( config['puter.auth.token'] ) {
-        await puterSDK.setAuthToken(config['puter.auth.token']);
+  let resolveConfigured = null;
+  const configured_ = new Promise((rslv) => {
+    resolveConfigured = rslv;
+  });
+  window.addEventListener("message", (evt) => {
+    if (evt.source !== window.parent) return;
+    if (evt.data instanceof Uint8Array) {
+      return;
     }
-    const source_without_trailing_slash =
-        (config.source && config.source.replace(/\/$/, ''))
-        || 'https://api.puter.com';
-    await puterSDK.setAPIOrigin(source_without_trailing_slash);
+    if (!evt.data.hasOwnProperty("$")) {
+      console.error(`unrecognized window message`, evt);
+      return;
+    }
+    if (evt.data.$ !== "config") return;
 
-    const ptt = new XDocumentPTT();
-    await launchPuterShell(new Context({
-        ptt,
-        config, puterSDK,
-        externs: new Context({ puterSDK }),
-        platform: new Context({
-            filesystem: CreateFilesystemProvider({ puterSDK }),
-            drivers: CreateDriversProvider({ puterSDK }),
-            env: CreateEnvProvider({ config }),
-        }),
-    }));
+    console.log("received configuration at ANSI shell");
+    const configValues = { ...evt.data };
+    delete configValues.$;
+    for (const k in configValues) {
+      config[k] = configValues[k];
+    }
+    resolveConfigured();
+  });
+
+  window.parent.postMessage({ $: "ready" }, "*");
+
+  await configured_;
+
+  const puterSDK = globalThis.puter;
+  if (config["puter.auth.token"]) {
+    await puterSDK.setAuthToken(config["puter.auth.token"]);
+  }
+  const source_without_trailing_slash =
+    (config.source && config.source.replace(/\/$/, "")) ||
+    "https://api.puter.com";
+  await puterSDK.setAPIOrigin(source_without_trailing_slash);
+
+  const ptt = new XDocumentPTT();
+  await launchPuterShell(
+    new Context({
+      ptt,
+      config,
+      puterSDK,
+      externs: new Context({ puterSDK }),
+      platform: new Context({
+        filesystem: CreateFilesystemProvider({ puterSDK }),
+        drivers: CreateDriversProvider({ puterSDK }),
+        env: CreateEnvProvider({ config }),
+      }),
+    }),
+  );
 };

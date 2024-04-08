@@ -16,30 +16,30 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { nodeResolve } from '@rollup/plugin-node-resolve'
-import commonjs from '@rollup/plugin-commonjs';
-import copy from 'rollup-plugin-copy';
+import { nodeResolve } from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
+import copy from "rollup-plugin-copy";
 
-const configFile = process.env.CONFIG_FILE ?? 'config/dev.js';
+const configFile = process.env.CONFIG_FILE ?? "config/dev.js";
 
 export default {
-    input: "src/main_puter.js",
-    output: {
-        file: "dist/bundle.js",
-        format: "iife"
-    },
-    plugins: [
-        nodeResolve(),
-        commonjs(),
-        copy({
-            targets: [
-                { src: 'assets/index.html', dest: 'dist' },
-                { src: 'assets/shell.html', dest: 'dist' },
-                { src: 'assets/normalize.css', dest: 'dist' },
-                { src: 'assets/style.css', dest: 'dist' },
-                { src: 'node_modules/xterm/css/xterm.css', dest: 'dist' },
-                { src: configFile, dest: 'dist', rename: 'config.js' }
-            ]
-        }),
-    ]
-}
+  input: "src/main_puter.js",
+  output: {
+    file: "dist/bundle.js",
+    format: "iife",
+  },
+  plugins: [
+    nodeResolve(),
+    commonjs(),
+    copy({
+      targets: [
+        { src: "assets/index.html", dest: "dist" },
+        { src: "assets/shell.html", dest: "dist" },
+        { src: "assets/normalize.css", dest: "dist" },
+        { src: "assets/style.css", dest: "dist" },
+        { src: "node_modules/xterm/css/xterm.css", dest: "dist" },
+        { src: configFile, dest: "dist", rename: "config.js" },
+      ],
+    }),
+  ],
+};
