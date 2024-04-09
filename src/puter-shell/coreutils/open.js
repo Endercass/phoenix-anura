@@ -1,3 +1,5 @@
+import { Exit } from "./coreutil_lib/exit";
+
 export default {
   name: "open",
   usage: "open APP [ARGS]...",
@@ -8,7 +10,7 @@ export default {
   },
   execute: async (ctx) => {
     const { positionals } = ctx.locals;
-    const { out, err } = ctx.externs;
+    const { out, err, anura } = ctx.externs;
 
     if (positionals.length < 1) {
       await err.write("open: missing app package\n");

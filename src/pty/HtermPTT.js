@@ -1,41 +1,24 @@
 import { BetterReader } from "dev-pty";
 
 const encoder = new TextEncoder();
-const $ = document.querySelector.bind(document);
 
 export class HtermPTT {
-  constructor(onReady) {
-    this.node = $("#terminal");
+  constructor(hterm, node, decorate, onReady) {
+    this.node = node;
     this.hterm = new hterm.Terminal();
 
     this.hterm.decorate(this.node);
 
     this.hterm.onTerminalReady = async () => {
-      let e = document
+      node
         .querySelector("iframe")
-        .contentDocument.querySelector("x-screen");
-      console.log(e);
-      e.style.overflow = "hidden";
-      e.style.position = "relative";
-
+        .contentDocument.querySelector("x-screen").style.overflow = "hidden";
       let io = this.hterm.io.push();
-      this.hterm.setBackgroundColor("#141516");
-      this.hterm.setCursorColor("#bbb");
-
-      if (anura.settings.get("transparent-ashell")) {
-        frameElement.style.backgroundColor = "rgba(0, 0, 0, 0)";
-        frameElement.parentNode.parentNode.style.backgroundColor =
-          "rgba(0, 0, 0, 0)";
-        frameElement.parentNode.parentNode.style.backdropFilter = "blur(5px)";
-        document
-          .querySelector("iframe")
-          .contentDocument.documentElement.style.setProperty(
-            "--hterm-background-color",
-            "20,21,22,0.85",
-          );
-        Array.from(frameElement.parentNode.parentNode.children).filter((e) =>
-          e.classList.contains("title"),
-        )[0].style.backgroundColor = "rgba(20, 21, 22, 0.85)";
+      if (decorate) {
+        await decorate(this);
+      } else {
+        this.hterm.setBackgroundColor("#141516");
+        this.hterm.setCursorColor("#bbb");
       }
 
       this.ioctl_listeners = {};
@@ -61,12 +44,10 @@ export class HtermPTT {
       this.in = new BetterReader({ delegate: this.in });
 
       io.onVTKeystroke = (key) => {
-        console.log(key);
         this.readController.enqueue(encoder.encode(key));
       };
 
       io.sendString = (str) => {
-        console.log(str);
         this.readController.enqueue(encoder.encode(str));
       };
 

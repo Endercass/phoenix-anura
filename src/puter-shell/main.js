@@ -67,6 +67,7 @@ export const launchPuterShell = async (ctx) => {
   const readline = ReadlineLib.create({
     in: stdin,
     out: ptt.out,
+    process: ctx.externs.process,
   });
 
   const sdkv2 = globalThis.puter;

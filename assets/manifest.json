@@ -1,12 +1,9 @@
 {
-  "name": "Phoenix Terminal",
-  "type": "auto",
-  "package": "anura.phoenix",
-  "index": "index.html",
+  "name": "Phoenix Shell",
   "icon": "term.png",
-  "wininfo": {
-    "title": "",
-    "width": "700px",
-    "height": "500px"
-  }
+  "package": "anura.shell.phoenix",
+  "versions": {
+    "%LATEST%": "bundle.mjs"
+  },
+  "currentVersion": "%LATEST%"
 }

@@ -19,26 +19,30 @@
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import copy from "rollup-plugin-copy";
+import { SHELL_VERSIONS } from "./src/meta/versions.js";
 
 const configFile = process.env.CONFIG_FILE ?? "config/dev.js";
 
 export default {
   input: "src/main_anura.js",
   output: {
-    file: "dist/bundle.js",
-    format: "iife",
+    file: "dist/bundle.mjs",
+    format: "es",
   },
   plugins: [
     nodeResolve(),
     commonjs(),
     copy({
       targets: [
-        { src: "assets/index.html", dest: "dist" },
-        { src: "assets/manifest.json", dest: "dist" },
         { src: "assets/term.png", dest: "dist" },
-        { src: "assets/hterm_all.js", dest: "dist" },
-        { src: configFile, dest: "dist", rename: "config.js" },
+        {
+          src: "assets/manifest.json",
+          dest: "dist",
+          transform: (contents) =>
+            contents.toString().replace(/%LATEST%/g, SHELL_VERSIONS[0].v),
+        },
       ],
     }),
+    // Write the library manifest to the dist directory
   ],
 };

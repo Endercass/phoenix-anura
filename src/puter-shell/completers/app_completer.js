@@ -1,5 +1,7 @@
 export class AppCompleter {
   async getCompletions(ctx, inputState) {
+    const { anura } = ctx.externs;
+
     if (inputState.input === "") {
       return [];
     }

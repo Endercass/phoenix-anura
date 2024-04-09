@@ -55,6 +55,7 @@ const ReadlineProcessorBuilder = (builder) =>
     .variable("cursor", { getDefaultValue: () => 0 })
     .external("out", { required: true })
     .external("in_", { required: true })
+    .external("process", { required: true })
     .external("history", { required: true })
     .external("prompt", { required: true })
     .external("commandCtx", { required: true })
@@ -79,7 +80,7 @@ const ReadlineProcessorBuilder = (builder) =>
         externs.out.write("^C\n");
         // Exit if input line is empty
         if (ctx.vars.result.length === 0) {
-          instanceWindow.close();
+          externs.process.exit(0);
           return;
         }
         // Otherwise clear it
@@ -348,6 +349,7 @@ class Readline {
   async readline(prompt, commandCtx) {
     const out = this.internal_.out;
     const in_ = this.internal_.in;
+    const process = this.internal_.process;
 
     await out.write(prompt);
 
@@ -355,6 +357,7 @@ class Readline {
       prompt,
       out,
       in_,
+      process,
       history: this.history,
       commandCtx,
     });

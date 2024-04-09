@@ -28,7 +28,7 @@ function wrapAPIs(apis) {
 
 const shell = new anura.fs.Shell();
 
-export const CreateFilesystemProvider = () =>
+export const CreateFilesystemProvider = (anura) =>
   wrapAPIs({
     capabilities: {},
     readdir: async (path) =>
