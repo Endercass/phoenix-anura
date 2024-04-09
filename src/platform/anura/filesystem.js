@@ -46,7 +46,7 @@ export const CreateFilesystemProvider = (anura) =>
       ),
 
     stat: async (path) =>
-      (await anura.fs.promises.stat(path)).map((stat) => ({
+      anura.fs.promises.stat(path).then((stat) => ({
         modified: stat.mtimeMs / 1000,
         accessed: stat.atimeMs / 1000,
         created: stat.ctimeMs / 1000,
@@ -57,7 +57,10 @@ export const CreateFilesystemProvider = (anura) =>
         ...stat,
       })),
     mkdir: anura.fs.promises.mkdir,
-    read: anura.fs.promises.readFile,
+    read: async (path) => {
+      const data = await anura.fs.promises.readFile(path);
+      return new Blob([data]);
+    },
     write: async (path, data) => {
       if (data instanceof Blob) {
         return await anura.fs.promises.writeFile(
