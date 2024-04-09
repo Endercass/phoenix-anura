@@ -34,6 +34,7 @@ import { BetterReader } from "dev-pty";
 import { MultiWriter } from "../ansi-shell/ioutil/MultiWriter.js";
 import { CompositeCommandProvider } from "./providers/CompositeCommandProvider.js";
 import { ScriptCommandProvider } from "./providers/ScriptCommandProvider.js";
+import { HookableCommandProvider } from "./providers/HookableCommandProvider.js";
 
 const argparser_registry = {
   [SimpleArgParser.name]: SimpleArgParser,
@@ -83,6 +84,8 @@ export const launchPuterShell = async (ctx) => {
   const commandProvider = new CompositeCommandProvider([
     new BuiltinCommandProvider(),
     new ScriptCommandProvider(),
+    new HookableCommandProvider(ctx.commands || []),
+    new CompositeCommandProvider(ctx.providers || []),
   ]);
 
   ctx = ctx.sub({

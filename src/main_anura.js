@@ -4,6 +4,9 @@ import { HtermPTT } from "./pty/HtermPTT.js";
 import { CreateEnvProvider } from "./platform/anura/env.js";
 import { CreateFilesystemProvider } from "./platform/anura/filesystem.js";
 
+const providers = [];
+const commands = {};
+
 const create_shell = async (
   config,
   element,
@@ -18,6 +21,8 @@ const create_shell = async (
         new Context({
           ptt,
           config,
+          providers,
+          commands,
           externs: new Context({
             anura,
             process,
@@ -34,4 +39,37 @@ const create_shell = async (
   });
 };
 
-export { create_shell };
+const register_provider = (provider) => {
+  providers.push(provider);
+};
+
+const unregister_provider = (provider) => {
+  const idx = providers.indexOf(provider);
+  if (idx >= 0) {
+    providers.splice(idx, 1);
+  }
+};
+
+const register_command = (id, command) => {
+  commands[id] = command;
+};
+
+const unregister_command = (idOrCommand) => {
+  if (typeof idOrCommand === "string") {
+    delete commands[idOrCommand];
+    return;
+  }
+  for (const id in commands) {
+    if (commands[id] === idOrCommand) {
+      delete commands[id];
+    }
+  }
+};
+
+export {
+  create_shell,
+  register_provider,
+  unregister_provider,
+  register_command,
+  unregister_command,
+};
