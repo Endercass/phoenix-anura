@@ -53,6 +53,17 @@ export default {
   name: "phetch",
   usage: "phetch",
   description: "Print information about the system.",
+  args: {
+    $: "simple-parser",
+    allowPositionals: true,
+    options: {
+      json: {
+        description: "Output as a JSON string.",
+        type: "boolean",
+        short: "j",
+      },
+    },
+  },
   execute: async (ctx) => {
     const { anura } = ctx.externs;
 
@@ -83,6 +94,27 @@ export default {
     }
 
     const commands = Object.keys(ctx.registries.builtins).length;
+
+    if (ctx.locals.values.json) {
+      await ctx.externs.out.write(
+        JSON.stringify({
+          os: "AnuraOS",
+          version: anura.version,
+          uptime: {
+            days,
+            hours,
+            minutes,
+            seconds,
+            pretty: formattedUptime,
+          },
+          commands,
+          shell: `Phoenix Shell v${SHELL_VERSIONS[0].v}`,
+          cpu: navigator.hardwareConcurrency,
+          online: navigator.onLine,
+        }) + "\n",
+      );
+      return;
+    }
 
     lines[0] += COL + ctx.env.USER + END + "@" + COL + ctx.env.HOSTNAME + END;
     lines[1] += "-----------------";
