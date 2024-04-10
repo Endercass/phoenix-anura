@@ -53,6 +53,7 @@ import module_true from "./true.js";
 import module_wc from "./wc.js";
 import module_which from "./which.js";
 import module_open from "./open.js";
+import module_eval from "./eval.js";
 
 export default {
   basename: module_basename,
@@ -91,4 +92,5 @@ export default {
   wc: module_wc,
   which: module_which,
   open: module_open,
+  eval: module_eval,
 };
